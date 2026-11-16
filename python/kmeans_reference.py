@@ -91,8 +91,9 @@ def main():
             continue
         times, km = [], None
         for _ in range(args.runs):
-            # max_points_per_centroid is raised so FAISS trains on all points, like the others.
-            km = faiss.Kmeans(d, args.nlist, niter=args.max_iter, seed=args.seed, gpu=gpu, verbose=False,
+            # max_points_per_centroid is raised so FAISS trains on all points, like the others;
+            # gpu=1 limits FAISS to one GPU (True would use every GPU, e.g. both on Kaggle T4 x2).
+            km = faiss.Kmeans(d, args.nlist, niter=args.max_iter, seed=args.seed, gpu=1 if gpu else False, verbose=False,
                               max_points_per_centroid=int(math.ceil(n / args.nlist)) + 1)
             with Timer() as t:
                 km.train(x)
