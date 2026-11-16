@@ -157,6 +157,5 @@ explains them in plain language. This README quotes no figures that are not in t
 
 ## Background
 
-This repository started as a course project. The original implementation, slightly cleaned up,
-is kept in [`legacy/`](legacy/). Dataset: [Plain Text Wikipedia 2020-11](https://www.kaggle.com/datasets/ltcmdrdata/plain-text-wikipedia-202011)
+The first version of this project is kept in [`legacy/`](legacy/). Dataset: [Plain Text Wikipedia 2020-11](https://www.kaggle.com/datasets/ltcmdrdata/plain-text-wikipedia-202011)
 on Kaggle, or `wikimedia/wikipedia` on Hugging Face.
