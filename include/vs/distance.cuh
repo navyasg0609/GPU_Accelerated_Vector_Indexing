@@ -40,6 +40,7 @@ struct KernelAttrs {
     size_t static_smem = 0;
     size_t dynamic_smem = 0;
     int threads_per_block = 0;
+    int max_threads_per_block = 0;  // launch limit given the kernel's register use
     int active_blocks_per_sm = 0;
     double occupancy = 0;  // active warps / max warps per SM (theoretical)
 };

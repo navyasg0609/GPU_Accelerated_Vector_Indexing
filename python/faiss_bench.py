@@ -65,7 +65,8 @@ def main():
     ap.add_argument("--batches", default="1,16,128,1024")
     ap.add_argument("--cpu_batches", default="1,128,1024", help="batch sizes for CPU indexes")
     ap.add_argument("--cpu_max_queries", type=int, default=200,
-                    help="CPU indexes use the first N queries (CPU flat search at batch 1 is slow)")
+                    help="exact CPU search (faiss_flat_cpu) uses the first N queries because it is slow; "
+                         "every other index uses all queries")
     ap.add_argument("--warmup", type=int, default=2)
     ap.add_argument("--runs", type=int, default=5)
     ap.add_argument("--indexes", default="flat_cpu,flat_gpu,ivf_cpu,ivf_gpu,ivf_cpu_ours")
@@ -92,7 +93,7 @@ def main():
     rows, build_rows = [], []
 
     def bench(name, variant, index, gpu, nlist=0, nprobe_list=(0,)):
-        nq = q_all.shape[0] if gpu else min(args.cpu_max_queries, q_all.shape[0])
+        nq = min(args.cpu_max_queries, q_all.shape[0]) if name == "faiss_flat_cpu" else q_all.shape[0]
         q, gt = q_all[:nq], gt_all[:nq]
         meta = environment(args.dataset, n, d, nq)
         batches = [int(b) for b in (args.batches if gpu else args.cpu_batches).split(",")]

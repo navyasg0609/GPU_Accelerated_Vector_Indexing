@@ -152,7 +152,7 @@ explains them in plain language. This README quotes no figures that are not in t
   * k-means++ seeding is the plain (non-greedy) variant. scikit-learn uses greedy k-means++, so seeding quality can differ slightly.
   * Empty clusters keep their previous centroid.
   * FAISS K-means has no tolerance stop, so it always runs `max_iter` iterations.
-* **Baseline scope:** the CPU baselines are measured on up to 200 queries (`--cpu_max_queries`), because exact CPU search at batch 1 is slow. Their QPS therefore comes from fewer queries than the GPU runs.
+* **Baseline scope:** the two exact CPU baselines (ours and FAISS `IndexFlatIP`) run on 100 and 200 queries (`--cpu_check`, `--cpu_max_queries`), because exact CPU search is slow. Every other method uses all 1,000 queries.
 * **Synthetic scaling data:** the scaling experiments beyond the real dataset use a Gaussian-mixture dataset. Recall on it is not comparable to recall on real embeddings.
 
 ## Background

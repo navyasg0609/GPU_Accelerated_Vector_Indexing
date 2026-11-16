@@ -238,6 +238,16 @@ template <int QG, typename Kernel, typename XT>
 void launch_warp_family(Kernel kern, const float* dQ, int nq, const XT* dX, int64_t nv, int d,
                         float* dS, int64_t ldS, int tpb, cudaStream_t stream) {
     check_tpb(tpb);
+    {
+        cudaFuncAttributes fa{};
+        CUDA_CHECK(cudaFuncGetAttributes(&fa, (const void*)kern));
+        if (tpb > fa.maxThreadsPerBlock) {
+            std::fprintf(stderr,
+                         "threads per block %d exceeds this kernel's limit of %d (it uses %d registers "
+                         "per thread)\n", tpb, fa.maxThreadsPerBlock, fa.numRegs);
+            std::exit(EXIT_FAILURE);
+        }
+    }
     const int64_t groups = ceil_div(nq, QG);
     VS_REQUIRE(groups <= kMaxGridY, "too many queries for one launch of the warp kernel");
     const size_t smem = size_t(QG) * d * sizeof(float);
@@ -375,6 +385,8 @@ KernelAttrs inner_product_kernel_attrs(DistVariant variant, int nq, int d, int t
     a.static_smem = fa.sharedSizeBytes;
     a.dynamic_smem = smem;
     a.threads_per_block = tpb;
+    a.max_threads_per_block = fa.maxThreadsPerBlock;
+    if (tpb > fa.maxThreadsPerBlock) return a;  // not launchable; occupancy stays 0
     CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&a.active_blocks_per_sm, kern, tpb, smem));
     int dev = 0, max_threads = 0;
     CUDA_CHECK(cudaGetDevice(&dev));

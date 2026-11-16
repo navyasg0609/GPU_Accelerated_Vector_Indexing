@@ -65,6 +65,8 @@ int main(int argc, char** argv) {
                               {"variant", "batch", "nv", "tpb", "runs", "ms_mean", "ms_std", "gflops",
                                "gbps", "pct_peak_bw", "peak_bw_gbs", "pct_peak_flops", "regs",
                                "smem_bytes", "blocks_per_sm", "occupancy", "max_abs_err"}));
+    CsvWriter skipped(csv.substr(0, csv.rfind('.')) + "_skipped.csv",
+                      concat(RunMeta::header(), {"variant", "batch", "tpb", "regs", "max_threads_per_block"}));
     GpuTimer timer;
     std::mt19937_64 pick(seed + 2);
 
@@ -78,6 +80,19 @@ int main(int argc, char** argv) {
             dS.ensure(size_t(b) * nv);
             const std::vector<int> tpb_list = variant_uses_tpb(v) ? tpbs : std::vector<int>{256};
             for (int tpb : tpb_list) {
+                if (variant_uses_tpb(v)) {
+                    const KernelAttrs pre = inner_product_kernel_attrs(v, b, dim, tpb);
+                    if (tpb > pre.max_threads_per_block) {
+                        std::printf("%-10s %6d %8lld %5d   skipped: kernel needs %d registers/thread, "
+                                    "so at most %d threads per block can launch\n",
+                                    vname.c_str(), b, (long long)nv, tpb, pre.regs_per_thread,
+                                    pre.max_threads_per_block);
+                        skipped.row(concat(meta.values(), {vname, std::to_string(b), std::to_string(tpb),
+                                                           std::to_string(pre.regs_per_thread),
+                                                           std::to_string(pre.max_threads_per_block)}));
+                        continue;
+                    }
+                }
                 auto launch = [&] {
                     if (fp16) launch_inner_product_fp16(dQ.data(), b, dXh.data(), nv, dim, dS.data(), nv, tpb, 0);
                     else launch_inner_product(v, dQ.data(), b, dX.data(), nv, dim, dS.data(), nv, tpb, 0);
