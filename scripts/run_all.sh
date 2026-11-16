@@ -3,7 +3,7 @@
 # train the IVF index with CUDA K-means, and benchmark ours + FAISS. Finally the kernel study and
 # the report (plots + summary.md). Every setting can be overridden from the environment, e.g.
 #
-#   SOURCE=synthetic SCALES="100000 1000000 5000000" scripts/run_all.sh
+#   SOURCE=hf_wikipedia SCALES="100000 500000 1000000" RUNS=5 scripts/run_all.sh
 #
 set -euo pipefail
 cd "$(dirname "$0")/.."

@@ -92,7 +92,6 @@ Everything, on Kaggle or Colab: open `notebooks/run_benchmarks.ipynb` and run al
 
 ```bash
 SOURCE=kaggle_wikipedia SCALES="100000 500000 1000000" scripts/run_all.sh
-SOURCE=synthetic SCALES="100000 1000000 5000000" scripts/run_all.sh     # scaling beyond the real data
 ```
 
 Individual tools (`--help` on any binary lists every option):
@@ -158,7 +157,7 @@ nprobe ≥ 8. [`RESULTS.md`](RESULTS.md) covers this, the kernel study and scali
 
 ## Limitations
 
-* **IVF-Flat only:** no compression, so memory is 4·d bytes per vector (1.5 KB at d=384), and about 5M vectors is the limit on a 16 GB GPU. PQ, and fp16 storage inside the IVF lists, are not implemented. fp16 is only in the kernel study and flat search.
+* **IVF-Flat only:** no compression, so memory is 4·d bytes per vector (1.5 KB at d=384), all held on the GPU. PQ, and fp16 storage inside the IVF lists, are not implemented. fp16 is only in the kernel study and flat search.
 * **The fine scan works per (query, list) pair.** Queries in a batch that probe the same list each re-read it, so at 1M vectors batching raises IVF throughput by only 1.2× (nprobe 8). Grouping queries by list (a small GEMM per list) would fix this.
 * **Flat search uses the warp kernel at every batch size.** That kernel is the best one for single queries, but at large batches a GEMM is faster (cuBLAS is 6.9× faster at batch 1,024). Flat search does not yet switch kernels automatically.
 * **One host round-trip per IVF batch:** the candidate layout is copied to the host to size the buffers. This costs a few microseconds of latency, and large batches are split to respect `--max_candidates`.
@@ -169,7 +168,6 @@ nprobe ≥ 8. [`RESULTS.md`](RESULTS.md) covers this, the kernel study and scali
   * Empty clusters keep their previous centroid.
   * FAISS K-means has no tolerance stop, so it always runs `max_iter` iterations.
 * **Baseline scope:** the two exact CPU baselines (ours and FAISS `IndexFlatIP`) run on 100 and 200 queries (`--cpu_check`, `--cpu_max_queries`), because exact CPU search is slow. Every other method uses all 1,000 queries.
-* **Scales measured:** 100k, 500k and 1M real vectors. The 5M synthetic scale (`SOURCE=synthetic`) has not been run yet. Its Gaussian-mixture data would not give recall comparable to real embeddings anyway.
 * **No profiler data:** kernel figures come from cudaEvent timings and the CUDA occupancy API, not Nsight Compute.
 
 ## Background

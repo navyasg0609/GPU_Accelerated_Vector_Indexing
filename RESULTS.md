@@ -149,8 +149,6 @@ These figures come from cudaEvent timings and the CUDA occupancy API, not from a
 * **Batched IVF throughput falls roughly with n**, as expected for a scan that reads every probed list once per query.
 * **One result I can't explain yet:** at 1M, batch 1,024, going from nprobe 64 to 128 costs 2.5× the time (3.6 s → 9.1 s) instead of 2×. Both settings exceed the 128M-candidate buffer and are split into sub-batches. I have not profiled where the extra time goes.
 
-**The 5M synthetic scale was not run in this round** (`SOURCE=synthetic SCALES="100000 1000000 5000000"`). The flat index at 5M needs 7.7 GB of the T4's 15 GB.
-
 ## Takeaways
 
 1. **IVF with nprobe 8–16 is the sweet spot for interactive search** on this data: R@10 of 0.95–0.98 at 0.5–0.9 ms per query on a T4, which is 8–15× faster than exact GPU search.
