@@ -38,13 +38,23 @@ log "build"
 scripts/build.sh
 
 mkdir -p "$RES" results/kernels
+# Each run starts from empty CSVs so rows from earlier runs never mix in (KEEP_RESULTS=1 to append).
+if [[ "${KEEP_RESULTS:-0}" != 1 ]]; then
+  rm -f "$RES"/*.csv results/kernels/*.csv
+  rm -rf "$RES/plots"
+fi
 log "correctness tests"
 $BIN/test_correctness | tee "$RES/test_correctness.log" || { echo "correctness tests failed"; exit 1; }
 
 nvidia-smi > "$RES/nvidia_smi.txt" || true
 
 NMAX=$(echo $SCALES | tr ' ' '\n' | sort -n | tail -1)
-if [[ ! -f "$DATA/base.fbin" ]]; then
+have_n() {  # rows in an existing dataset (0 if none)
+  [[ -f "$DATA/meta.json" && -f "$DATA/base.fbin" ]] || { echo 0; return; }
+  python -c "import json,sys; m=json.load(open(sys.argv[1])); print(m['n'] if m['source']==sys.argv[2] and m['nq']==int(sys.argv[3]) else 0)"     "$DATA/meta.json" "$SOURCE" "$NQ"
+}
+if (( $(have_n) < NMAX )); then
+  rm -f "$DATA"/*
   log "prepare data ($SOURCE, n=$NMAX, nq=$NQ)"
   python python/prepare_data.py --source "$SOURCE" --wiki_dir "$WIKI_DIR" --n "$NMAX" --nq "$NQ" \
     --out_dir "$DATA" --seed "$SEED"
