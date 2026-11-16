@@ -6,7 +6,7 @@ Sources
   synthetic         Gaussian mixture on the unit sphere, for scaling runs beyond the real data
 
 Wikipedia articles are split into ~100-word passages and embedded with all-MiniLM-L6-v2
-(384-d, the model used by the original project). Passages are shuffled with a fixed seed; the
+(384-d). Passages are shuffled with a fixed seed; the
 first --nq become held-out queries (not in the base), the rest the base set. Because the base is
 shuffled, the first n rows of base.fbin are a uniform random subset, which is how the scaling
 experiments pick 100k / 500k / ... vectors.

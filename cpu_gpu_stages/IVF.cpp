@@ -285,7 +285,7 @@ class IVFIndex
 
         if (sequential_fine_search)
         {
-            // Original behavior: Process each cluster sequentially
+            // Sequential mode: process each cluster in turn
             // Min-heap to store top k results
             auto cmp = [](const pair<float, int>& left, const pair<float, int>& right) 
             {

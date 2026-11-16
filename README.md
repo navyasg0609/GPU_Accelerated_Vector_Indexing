@@ -8,17 +8,17 @@ cosine similarity. A CUDA K-means splits the vectors into `nlist` clusters (128 
 query first ranks the cluster centroids (coarse search), then scans only the `nprobe` closest
 clusters (fine search) and returns the top-k passages.
 
-What this version adds over the first one (kept in [`legacy/`](legacy/)):
+What the project covers:
 
-| | v1 (legacy) | this version |
-|---|---|---|
-| queries | one at a time | batches of any size, each stage one kernel launch |
-| results | top-1, merged on the CPU | top-k (k ≤ 1024), GPU radix select |
-| quality | not measured | recall@1/10/100 against exact ground truth, 1,000 held-out queries |
-| baselines | none | exact GPU + CPU search, FAISS Flat/IVF-Flat on CPU and GPU |
-| clustering | scikit-learn (Python) | CUDA K-means, checked against scikit-learn and FAISS |
-| kernels | 2 variants | 5 variants, bandwidth / occupancy / threads-per-block study |
-| memory | `cudaMalloc` + copy on every call | data resident on the GPU, grow-only workspaces |
+| | |
+|---|---|
+| queries | batches of any size, each stage one kernel launch |
+| results | top-k (k ≤ 1024), GPU radix select |
+| quality | recall@1/10/100 against exact ground truth, 1,000 held-out queries |
+| baselines | exact GPU + CPU search, FAISS Flat/IVF-Flat on CPU and GPU |
+| clustering | CUDA K-means, checked against scikit-learn and FAISS |
+| kernels | 5 variants, bandwidth / occupancy / threads-per-block study |
+| memory | data resident on the GPU, grow-only workspaces |
 
 ## Architecture
 
@@ -53,6 +53,7 @@ Source layout:
 | `include/vs/`, `src/` | the library: `distance.cu` (kernels), `topk.cu` (selection), `flat_index.cu`, `ivf_index.cu`, `kmeans.cu`, `cpu_ref.cpp` (exact CPU baseline), `bench.cu` (timing protocol), `io.cpp` |
 | `apps/` | `flat_search`, `build_ivf`, `ivf_bench`, `kernel_bench`, `ivf_query` |
 | `tests/test_correctness.cu` | GPU vs. CPU checks for every component |
+| `cpu_gpu_stages/` | single-query IVF pipeline with a CPU/GPU switch for each stage, atomic and non-atomic cosine-similarity kernels, and config-driven timing runs |
 | `python/` | data prep, FAISS and scikit-learn baselines, report/plots, free-text demo |
 | `scripts/` | `build.sh`, `run_all.sh` (whole pipeline) |
 | `notebooks/run_benchmarks.ipynb` | one-click Kaggle / Colab run |
@@ -170,7 +171,7 @@ nprobe ≥ 8. [`RESULTS.md`](RESULTS.md) covers this, the kernel study and scali
 * **Baseline scope:** the two exact CPU baselines (ours and FAISS `IndexFlatIP`) run on 100 and 200 queries (`--cpu_check`, `--cpu_max_queries`), because exact CPU search is slow. Every other method uses all 1,000 queries.
 * **No profiler data:** kernel figures come from cudaEvent timings and the CUDA occupancy API, not Nsight Compute.
 
-## Background
+## Dataset
 
-The first version of this project is kept in [`legacy/`](legacy/). Dataset: [Plain Text Wikipedia 2020-11](https://www.kaggle.com/datasets/ltcmdrdata/plain-text-wikipedia-202011)
+[Plain Text Wikipedia 2020-11](https://www.kaggle.com/datasets/ltcmdrdata/plain-text-wikipedia-202011)
 on Kaggle, or `wikimedia/wikipedia` on Hugging Face.

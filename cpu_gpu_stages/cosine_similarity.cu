@@ -28,7 +28,7 @@ __host__ float computeHostVectorNorm(const float* vector, size_t vectorSize) {
     return sqrt(sum);
 }
 
-// ORIGINAL
+// Non-atomic kernel
 // CUDA kernel for computing cosine similarities
 __global__ void cosineSimilarityKernel(
     const float* __restrict__ batchVectors,
