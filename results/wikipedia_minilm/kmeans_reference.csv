@@ -1,0 +1,6 @@
+dataset,gpu,compute_capability,cuda_runtime,cuda_driver,n,d,nq,method,init,nlist,max_iter,tol,seed,runs,iterations,inertia_eval,inertia_reported,time_s_mean,time_s_std,s_per_iter,notes
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,sklearn_kmeans,kmeans++,128,100,0.0001,42,1,100,751078.9355297089,751074.625,227.09260309599995,0.0,2.2709260309599997,"greedy k-means++, CPU"
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,faiss_cpu_kmeans,random,128,100,0.0001,42,1,100,752700.2837049961,752717.125,212.71433615099886,0.0,2.1271433615099884,no tolerance stop: runs all max_iter iterations
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,faiss_gpu_kmeans,random,128,100,0.0001,42,1,100,752701.9743922949,752718.75,29.852292278999812,0.0,0.29852292278999815,no tolerance stop: runs all max_iter iterations
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,ours_kmeans++_tiled,,128,100,0.0001,42,0,0,751913.936314106,nan,nan,nan,nan,centroids from build_ivf; timing in kmeans_gpu.csv
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,ours_random_tiled,,128,100,0.0001,42,0,0,752351.7865045071,nan,nan,nan,nan,centroids from build_ivf; timing in kmeans_gpu.csv

@@ -74,7 +74,7 @@ Source layout:
 
 ## Build
 
-Requirements: CUDA ≥ 11.8 (tested setup: Kaggle/Colab CUDA 12.x), CMake ≥ 3.18, g++ with OpenMP,
+Requirements: CUDA ≥ 11.8 (benchmarked on Kaggle: Tesla T4, CUDA 13.0), CMake ≥ 3.18, g++ with OpenMP,
 Python 3.10+ with `numpy pandas matplotlib`, and for the full pipeline
 `sentence-transformers scikit-learn faiss-gpu-cu12` (or `faiss-cpu`).
 
@@ -137,14 +137,30 @@ Benchmarks are produced by `scripts/run_all.sh` on a Kaggle/Colab GPU. Measured 
 [`results/`](results/) (`summary.md` and `plots/` per dataset). [`RESULTS.md`](RESULTS.md)
 explains them in plain language. This README quotes no figures that are not in those files.
 
-> **Status:** the code and pipeline are complete. Benchmark results will be added once
-> `notebooks/run_benchmarks.ipynb` has been run on a GPU. Until then `results/` is empty on
-> purpose: no number in this repository is estimated or invented.
+Headline numbers: Tesla T4, CUDA 13.0, 1M Wikipedia passages (d = 384), k = 100, nlist = 128, 1,000
+held-out queries, mean of 5 timed passes.
+
+| | result |
+|---|---|
+| IVF, nprobe 8, 1 query | R@10 = 0.950 in 0.50 ms, 15× faster than exact GPU search (7.47 ms) |
+| IVF, nprobe 16, 1 query | R@10 = 0.978 in 0.90 ms, 8.3× faster than exact GPU search |
+| vs. FAISS GPU IVF-Flat | 1.7–6.8× faster for single queries at nprobe ≤ 16 (FAISS timed from Python); 1.3–1.5× faster at batch 128 and 1,024, nprobe 8–64; up to 14% slower at batch 16 |
+| CUDA K-means, 1M vectors, k = 128, 100 iterations | 9.2 s, against 227 s for scikit-learn and 29.9 s for FAISS GPU, with inertia within 0.11% of scikit-learn's |
+| distance kernel, 1 query | 82% of the T4's theoretical DRAM bandwidth (262 of 320 GB/s) |
+| distance kernel, 1,024 queries | tiled GEMM 29× faster than the naive kernel, cuBLAS a further 2.7× faster |
+| correctness | all 34 GPU-vs-CPU checks pass; exact GPU search matches the CPU (id agreement 1.00000) at every scale |
+
+![speed vs recall](results/wikipedia_minilm/plots/recall_vs_latency.png)
+
+Where it falls short: at large batches the IVF scan reads each probed list once per query.
+FAISS's GEMM-based exact search (3,189 queries/s at batch 1,024) is then faster than IVF at
+nprobe ≥ 8. [`RESULTS.md`](RESULTS.md) covers this, the kernel study and scaling from 100k to 1M.
 
 ## Limitations
 
 * **IVF-Flat only:** no compression, so memory is 4·d bytes per vector (1.5 KB at d=384), and about 5M vectors is the limit on a 16 GB GPU. PQ, and fp16 storage inside the IVF lists, are not implemented. fp16 is only in the kernel study and flat search.
-* **The fine scan works per (query, list) pair.** Queries in a batch that probe the same list each re-read it. Grouping queries by list (a small GEMM per list) would raise large-batch throughput.
+* **The fine scan works per (query, list) pair.** Queries in a batch that probe the same list each re-read it, so at 1M vectors batching raises IVF throughput by only 1.2× (nprobe 8). Grouping queries by list (a small GEMM per list) would fix this.
+* **Flat search uses the warp kernel at every batch size.** That kernel is the best one for single queries, but at large batches a GEMM is faster (cuBLAS is 6.9× faster at batch 1,024). Flat search does not yet switch kernels automatically.
 * **One host round-trip per IVF batch:** the candidate layout is copied to the host to size the buffers. This costs a few microseconds of latency, and large batches are split to respect `--max_candidates`.
 * **No transfer/compute overlap:** a single stream is used, with no multi-stream pipelining.
 * **Batch and k limits:** at most 65,535 queries per launch and k ≤ 1024.
@@ -153,7 +169,8 @@ explains them in plain language. This README quotes no figures that are not in t
   * Empty clusters keep their previous centroid.
   * FAISS K-means has no tolerance stop, so it always runs `max_iter` iterations.
 * **Baseline scope:** the two exact CPU baselines (ours and FAISS `IndexFlatIP`) run on 100 and 200 queries (`--cpu_check`, `--cpu_max_queries`), because exact CPU search is slow. Every other method uses all 1,000 queries.
-* **Synthetic scaling data:** the scaling experiments beyond the real dataset use a Gaussian-mixture dataset. Recall on it is not comparable to recall on real embeddings.
+* **Scales measured:** 100k, 500k and 1M real vectors. The 5M synthetic scale (`SOURCE=synthetic`) has not been run yet. Its Gaussian-mixture data would not give recall comparable to real embeddings anyway.
+* **No profiler data:** kernel figures come from cudaEvent timings and the CUDA occupancy API, not Nsight Compute.
 
 ## Background
 

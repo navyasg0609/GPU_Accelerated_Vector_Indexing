@@ -1,0 +1,7 @@
+dataset,gpu,compute_capability,cuda_runtime,cuda_driver,n,d,nq,method,variant,nlist,train_s,add_s
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,0,faiss_ivf,faiss_kmeans,128,0.7443120620000627,0.2707274720000896
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,0,faiss_ivf,our_kmeans,128,9.944000021278043e-05,0.26471689900017736
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,0,faiss_ivf,faiss_kmeans,128,0.8128251899997849,1.3407901139999012
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,0,faiss_ivf,our_kmeans,128,0.00012207699910504743,1.4124366549995102
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,faiss_ivf,faiss_kmeans,128,0.9073816300006001,2.673934325999653
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,faiss_ivf,our_kmeans,128,0.00010922799992840737,2.7025916440015862

@@ -1,0 +1,4 @@
+dataset,gpu,compute_capability,cuda_runtime,cuda_driver,n,d,nq,check,queries,k,max_abs_score_diff,id_agreement,pass
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,1000,flat_gpu_vs_cpu,100,100,1.19209e-07,1,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,1000,flat_gpu_vs_cpu,100,100,1.78814e-07,1,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,1000,flat_gpu_vs_cpu,100,100,1.78814e-07,1,1

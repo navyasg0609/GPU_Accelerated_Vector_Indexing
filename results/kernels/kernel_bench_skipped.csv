@@ -1,0 +1,5 @@
+dataset,gpu,compute_capability,cuda_runtime,cuda_driver,n,d,nq,variant,batch,tpb,regs,max_threads_per_block
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,warp,1,1024,80,768
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,warp_fp16,16,1024,68,896
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,warp_fp16,128,1024,68,896
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,warp_fp16,1024,1024,68,896

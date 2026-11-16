@@ -1,0 +1,5 @@
+dataset,gpu,compute_capability,cuda_runtime,cuda_driver,n,d,nq,method,init,variant,nlist,max_iter,tol,seed,runs,iterations,converged,inertia,total_ms_mean,total_ms_std,ms_per_iter_mean,ms_per_iter_std,init_ms,h2d_ms,empty_clusters,min_list,max_list
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,0,ours_cuda_kmeans,kmeans++,tiled,128,100,0.0001,42,3,100,0,75188.23238,767.158,3.62109,6.7918,0.0396178,80.5609,36.9714,0,240,1842
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,0,ours_cuda_kmeans,kmeans++,tiled,128,100,0.0001,42,3,100,0,375870.9192,4748.73,163.21,41.4808,1.0507,490.219,184.665,0,953,8049
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,ours_cuda_kmeans,kmeans++,tiled,128,100,0.0001,42,3,100,0,751913.9213,9222.01,335.122,80.7709,0.86991,1278.67,362.361,0,902,17358
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,0,ours_cuda_kmeans,random,tiled,128,100,0.0001,42,3,100,0,752351.7613,6324.14,103.085,62.4778,1.02989,13.1979,362.479,0,1593,16859

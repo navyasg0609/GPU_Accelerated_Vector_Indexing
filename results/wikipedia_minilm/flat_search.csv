@@ -1,0 +1,16 @@
+dataset,gpu,compute_capability,cuda_runtime,cuda_driver,n,d,nq,method,variant,tpb,nlist,nprobe,k,batch,runs,latency_ms_mean,latency_ms_std,qps_mean,qps_std,recall_at_1,recall_at_10,recall_at_100
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,100,ours_flat_cpu,omp,,,,100,100,1,319.553,0,312.937,0,1,1,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,1000,ours_flat_gpu,warp,256,,,100,1,5,0.65091,0.00430973,1536.31,1.95547,1,1,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,1000,ours_flat_gpu,warp,256,,,100,16,5,2.13764,0.0179241,7484.95,20.9752,1,0.9999,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,1000,ours_flat_gpu,warp,256,,,100,128,5,17.0084,0.376175,7525.95,49.7633,1,0.9999,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,100000,384,1000,ours_flat_gpu,warp,256,,,100,1024,5,141.399,2.26273,7243.4,116.6,1,0.9999,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,100,ours_flat_cpu,omp,,,,100,100,1,1478.6,0,67.6316,0,1,1,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,1000,ours_flat_gpu,warp,256,,,100,1,5,3.09116,0.0104896,323.506,0.968065,0.998,0.9999,0.99999
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,1000,ours_flat_gpu,warp,256,,,100,16,5,13.5905,0.204796,1177.38,10.9961,0.998,0.9999,0.99999
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,1000,ours_flat_gpu,warp,256,,,100,128,5,118.327,1.30994,1081.8,7.91247,0.999,1,0.99999
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,500000,384,1000,ours_flat_gpu,warp,256,,,100,1024,5,912.725,2.85692,1121.92,3.51091,1,1,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,100,ours_flat_cpu,omp,,,,100,100,1,3320.78,0,30.1134,0,1,1,1
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,1000,ours_flat_gpu,warp,256,,,100,1,5,7.4729,2.15349,140.568,29.8819,1,0.9994,0.99999
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,1000,ours_flat_gpu,warp,256,,,100,16,5,26.203,0.548524,610.619,1.24676,1,0.9994,0.99999
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,1000,ours_flat_gpu,warp,256,,,100,128,5,227.438,0.883042,562.793,1.11443,1,0.9995,0.99999
+wikipedia_minilm,Tesla T4,7.5,13.0,13.0,1000000,384,1000,ours_flat_gpu,warp,256,,,100,1024,5,1677.15,2.64002,610.56,0.961735,1,0.9996,0.99999

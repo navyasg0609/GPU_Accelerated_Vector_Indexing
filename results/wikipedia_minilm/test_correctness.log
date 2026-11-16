@@ -1,0 +1,40 @@
+GPU 0: Tesla T4 (compute capability 7.5, 40 SMs, 14.6 GiB)
+  CUDA runtime 13.0, driver API 13.0
+  memory: 256-bit bus @ 5001 MHz -> theoretical peak 320.1 GB/s
+  SM clock 1590 MHz -> theoretical FP32 peak 8141 GFLOP/s
+[PASS] distance naive nq=1                              max |err| = 8.91e-08 (tol 1e-05)
+[PASS] distance naive nq=3                              max |err| = 1.07e-07 (tol 1e-05)
+[PASS] distance naive nq=37                             max |err| = 1.75e-07 (tol 1e-05)
+[PASS] distance warp nq=1                               max |err| = 1.78e-08 (tol 1e-05)
+[PASS] distance warp nq=3                               max |err| = 1.91e-08 (tol 1e-05)
+[PASS] distance warp nq=37                              max |err| = 2.64e-08 (tol 1e-05)
+[PASS] distance tiled nq=1                              max |err| = 8.91e-08 (tol 1e-05)
+[PASS] distance tiled nq=3                              max |err| = 1.07e-07 (tol 1e-05)
+[PASS] distance tiled nq=37                             max |err| = 1.75e-07 (tol 1e-05)
+[PASS] distance cublas nq=1                             max |err| = 3.16e-08 (tol 1e-05)
+[PASS] distance cublas nq=3                             max |err| = 3.40e-08 (tol 1e-05)
+[PASS] distance cublas nq=37                            max |err| = 1.75e-07 (tol 1e-05)
+[PASS] distance warp_fp16 nq=1                          max |err| = 3.49e-05 (tol 5e-03)
+[PASS] distance warp_fp16 nq=3                          max |err| = 4.63e-05 (tol 5e-03)
+[PASS] distance warp_fp16 nq=37                         max |err| = 5.06e-05 (tol 5e-03)
+[PASS] topk uniform len=1000 k=1                        
+[PASS] topk uniform len=1000 k=100                      
+[PASS] topk uniform len=4096 k=100                      
+[PASS] topk uniform len=50000 k=10                      
+[PASS] topk uniform len=200000 k=100                    
+[PASS] topk uniform len=300000 k=1024                   
+[PASS] topk uniform len=77 k=100                        
+[PASS] topk CSR rows with ids (empty/short/multi-tile)  
+[PASS] flat GPU (warp) vs CPU exact, chunked            max |score diff| 5.96e-08, id agreement 1.00000
+[PASS] flat GPU (tiled) vs CPU exact, chunked           max |score diff| 2.24e-07, id agreement 1.00000
+[PASS] flat GPU (naive) vs CPU exact, chunked           max |score diff| 2.24e-07, id agreement 1.00000
+[PASS] kmeans kmeans++                                  5 iters, inertia 23800.6472 (CPU 23800.6478), monotone 1, wrong labels 0
+[PASS] kmeans random                                    8 iters, inertia 23198.7913 (CPU 23198.7919), monotone 1, wrong labels 0
+[PASS] ivf lists are a partition of the ids             
+[PASS] ivf save/load round trip                         
+[PASS] ivf nprobe=1 vs CPU emulation                    max |score diff| 2.98e-08, id agreement 1.00000
+[PASS] ivf nprobe=4 vs CPU emulation                    max |score diff| 2.98e-08, id agreement 1.00000
+[PASS] ivf nprobe=13 vs CPU emulation                   max |score diff| 2.98e-08, id agreement 1.00000
+[PASS] ivf nprobe=nlist equals exact search             max |score diff| 8.94e-08, recall@20 1.00000
+
+ALL TESTS PASSED (0 failures)

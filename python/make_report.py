@@ -62,7 +62,9 @@ def load(path):
 
 def env_caption(df) -> str:
     r = df.iloc[0]
-    return f"{r['gpu']} · CUDA {r['cuda_runtime']} · {r['dataset']} · n={int(r['n']):,} · d={int(r['d'])}"
+    lo, hi = int(df["n"].min()), int(df["n"].max())
+    n = f"{hi:,}" if lo == hi else f"{lo:,}–{hi:,}"
+    return f"{r['gpu']} · CUDA {r['cuda_runtime']} · {r['dataset']} · n={n} · d={int(r['d'])}"
 
 
 def finish(fig, path, caption):
@@ -102,9 +104,10 @@ def plot_recall_tradeoff(df, out, n):
             if g.empty:
                 continue
             ax.plot(g["recall_at_10"], g[ycol], marker="o", color=SERIES.get(series, MUTED), label=series)
-            last = g.iloc[-1]
-            ax.annotate(f"nprobe {int(last['nprobe'])}", (last["recall_at_10"], last[ycol]),
-                        textcoords="offset points", xytext=(4, 4), fontsize=7, color=MUTED)
+            if series == "ours IVF (GPU)":
+                for pt in (g.iloc[0], g.iloc[-1]):
+                    ax.annotate(f"nprobe {int(pt['nprobe'])}", (pt["recall_at_10"], pt[ycol]),
+                                textcoords="offset points", xytext=(4, -10), fontsize=7, color=MUTED)
         ax.set_yscale("log")
         ax.set_xlabel("recall@10 (vs. exact search)")
         ax.set_ylabel(ylabel)
@@ -189,9 +192,10 @@ def plot_scaling(df, kmeans, out):
         ax.legend(fontsize=8)
     if kmeans is not None:
         ax = axes[2]
-        g = kmeans.sort_values("n")
-        ax.errorbar(g["n"], g["total_ms_mean"] / 1e3, yerr=g["total_ms_std"] / 1e3, marker="o",
-                    color=PALETTE[0], capsize=2, label="ours (CUDA K-means)")
+        for i, (init, g) in enumerate(kmeans.sort_values("n").groupby("init", sort=False)):
+            ax.errorbar(g["n"], g["total_ms_mean"] / 1e3, yerr=g["total_ms_std"] / 1e3, marker="o",
+                        color=PALETTE[i], capsize=2, linestyle="-" if len(g) > 1 else "none",
+                        label=f"ours CUDA K-means ({init} init)")
         ax.set_xscale("log")
         ax.set_yscale("log")
         ax.set_xlabel("vectors (n)")
@@ -277,6 +281,10 @@ def plot_kmeans(ref, ours, out, n):
     finish(fig, os.path.join(out, "kmeans_comparison.png"), env_caption(r.assign(nq=0)))
 
 
+INT_COLS = {"nprobe", "batch", "nq", "n", "tpb", "regs", "iterations", "converged", "runs"}
+SCI_COLS = {"max_abs_err"}
+
+
 def md_table(df, cols, headers=None) -> str:
     headers = headers or cols
     lines = ["| " + " | ".join(headers) + " |", "|" + "---|" * len(cols)]
@@ -284,8 +292,14 @@ def md_table(df, cols, headers=None) -> str:
         cells = []
         for c in cols:
             v = r[c]
-            if isinstance(v, float):
-                cells.append("" if np.isnan(v) else (f"{v:.4f}" if abs(v) < 10 else f"{v:,.1f}"))
+            if isinstance(v, float) and np.isnan(v):
+                cells.append("")
+            elif c in INT_COLS and float(v).is_integer():
+                cells.append(str(int(v)))
+            elif c in SCI_COLS:
+                cells.append(f"{v:.1e}")
+            elif isinstance(v, float):
+                cells.append(f"{v:.4f}" if abs(v) < 10 else f"{v:,.1f}")
             else:
                 cells.append(str(v))
         lines.append("| " + " | ".join(cells) + " |")
@@ -334,6 +348,8 @@ def summary(results, df, kb, kmeans, kref, n):
                            ["n", "init", "kernel", "iters", "converged", "inertia", "total ms", "± std",
                             "ms / iter"]), ""]
     if kref is not None:
+        # Our rows only re-evaluate centroids from build_ivf; their iterations and timing are above.
+        kref = kref.assign(iterations=kref["iterations"].where(~kref["method"].str.startswith("ours")))
         parts += ["## K-means references (inertia evaluated with one formula)", "",
                   md_table(kref.sort_values(["n", "method"]), ["n", "method", "iterations", "inertia_eval",
                                                                "time_s_mean", "time_s_std", "notes"],

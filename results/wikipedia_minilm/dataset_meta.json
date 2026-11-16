@@ -1,0 +1,12 @@
+{
+  "source": "kaggle_wikipedia",
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "n": 1000000,
+  "nq": 1000,
+  "d": 384,
+  "seed": 42,
+  "passage_words": 100,
+  "max_passages_per_article": 3,
+  "synthetic": null,
+  "seconds": 1076.9
+}
